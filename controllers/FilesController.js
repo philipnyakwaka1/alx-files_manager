@@ -1,4 +1,9 @@
+import { ObjectId } from 'mongodb';
 import mime from 'mime-types';
+import redisClient from '../utils/redis';
+import dbClient from '../utils/db';
+
+const fs = require('fs');
 
 class FilesController {
   static async getFile(req, res) {
@@ -24,20 +29,12 @@ class FilesController {
       return res.status(400).json({ error: "A folder doesn't have content" });
     }
 
-    let filePath = file.localPath;
+    const fileContent = await fs.promises.readFile(file.localPath, 'utf-8');
+    const mimeType = mime.lookup(file.name);
 
-    if (req.query.size) {
-      filePath += `_${req.query.size}`;
-    }
-
-    try {
-      const fileContent = await fs.promises.readFile(filePath);
-      const mimeType = mime.lookup(filePath);
-
-      res.setHeader('Content-Type', mimeType);
-      return res.send(fileContent);
-    } catch (error) {
-      return res.status(404).json({ error: 'Not found' });
-    }
+    res.setHeader('Content-Type', mimeType);
+    return res.send(fileContent);
   }
 }
+
+export default FilesController;

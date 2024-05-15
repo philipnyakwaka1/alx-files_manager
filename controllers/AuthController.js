@@ -24,7 +24,7 @@ class AuthController {
 
     const token = uuidv4();
     const key = `auth_${token}`;
-    await redisClient.set(key, user._id.toString(), 24 * 60 * 60);  // 24 hours expiration
+    await redisClient.set(key, user._id.toString(), 24 * 60 * 60); // 24 hours expiration
 
     return res.status(200).json({ token });
   }
